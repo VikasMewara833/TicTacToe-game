@@ -1,252 +1,200 @@
-import doctest
 
-SCORE_FILE = "scoreboard.txt"
-EMPTY = " "
+# TIC TAC TOE GAME - GROUP 14
 
-
-def create_board():
-    """Create an empty 3x3 board."""
-    return [[EMPTY for _ in range(3)] for _ in range(3)]
+FILE = "scoreboard.txt"
 
 
-def display_board(board):
-    """Display the board in Tic-Tac-Toe format."""
-    print()
-    for row in range(3):
-        print(" " + " | ".join(board[row]))
-        if row < 2:
-            print("---+---+---")
-    print()
+# Load previous scores
+def load_scores():
+    scores = {}
+    try:
+        with open(FILE, "r") as f:
+            for line in f:
+                data = line.strip().split("|")
+                if len(data) == 2 and data[1].isdigit():
+                    scores[data[0]] = int(data[1])
+    except FileNotFoundError:
+        pass
+    return scores
 
 
-def count_empty(board, position=0):
-    """
-    Recursively count empty squares.
-
-    >>> count_empty([[" ", "X", " "], ["O", " ", " "], ["X", "O", " "]])
-    5
-    """
-    if position == 9:
-        return 0
-
-    row = position // 3
-    col = position % 3
-
-    if board[row][col] == EMPTY:
-        return 1 + count_empty(board, position + 1)
-
-    return count_empty(board, position + 1)
+# Save scores
+def save_scores(scores):
+    with open(FILE, "w") as f:
+        for name, score in scores.items():
+            f.write(name + "|" + str(score) + "\n")
+    return True
 
 
-def get_occupied_squares(board):
-    """Return a set of occupied (row, column) tuples."""
-    occupied = set()
-
-    for row in range(3):
-        for col in range(3):
-            if board[row][col] != EMPTY:
-                occupied.add((row, col))
-
-    return occupied
+# Display board
+def show_board(board):
+    print("\n-------------")
+    for row in board:
+        for cell in row:
+            print(cell, end=" | ")
+        print("\n-------------")
+    return board
 
 
+# Check winner
 def check_winner(board, mark):
-    """
-    Check whether the given mark has won.
-
-    >>> check_winner([["X", "X", "X"], [" ", "O", " "], ["O", " ", " "]], "X")
-    True
-    >>> check_winner([["X", "O", "X"], ["O", "X", "O"], ["O", "X", "O"]], "X")
-    False
-    """
-    # Check rows and columns using nested loops
     for i in range(3):
-        if all(board[i][j] == mark for j in range(3)):
+        row = True
+        col = True
+
+        for j in range(3):
+            if board[i][j] != mark:
+                row = False
+            if board[j][i] != mark:
+                col = False
+
+        if row or col:
             return True
 
-        if all(board[j][i] == mark for j in range(3)):
-            return True
-
-    # Check both diagonals
-    if all(board[i][i] == mark for i in range(3)):
+    if board[0][0] == mark and board[1][1] == mark and board[2][2] == mark:
         return True
 
-    if all(board[i][2 - i] == mark for i in range(3)):
+    if board[0][2] == mark and board[1][1] == mark and board[2][0] == mark:
         return True
 
     return False
 
 
-def get_move(board, player_name, mark):
-    """Ask for a valid row and column, then return them as a tuple."""
-    occupied = get_occupied_squares(board)
+# Count empty spaces using recursion
+def count_empty(board, index=0):
+    if index == 9:
+        return 0
 
-    while True:
-        try:
-            print(f"{player_name} ({mark}), enter your move.")
-            row = int(input("Row (1-3): ")) - 1
-            col = int(input("Column (1-3): ")) - 1
+    row = index // 3
+    col = index % 3
 
-            if row not in range(3) or col not in range(3):
-                print("Please enter numbers from 1 to 3.")
-                continue
+    if board[row][col] not in ("X", "O"):
+        return 1 + count_empty(board, index + 1)
 
-            if (row, col) in occupied:
-                print("That square is already occupied. Try again.")
-                continue
-
-            return (row, col)
-
-        except ValueError:
-            print("Invalid input. Please enter a number.")
+    return count_empty(board, index + 1)
 
 
-def play_round(player1, player2, scores):
-    """Play one round and update the scoreboard."""
-    board = create_board()
-    players = [(player1, "X"), (player2, "O")]
+# Play one round
+def play_game(p1, p2, scores):
+    board = [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"]
+    ]
+
+    taken = set()
+    moves = []
+    players = ((p1, "X"), (p2, "O"))
     turn = 0
 
     while count_empty(board) > 0:
-        display_board(board)
+        show_board(board)
 
         name, mark = players[turn]
-        row, col = get_move(board, name, mark)
+        pos = input(name + " (" + mark + "), enter position: ").strip()
+
+        if not pos.isdigit() or int(pos) < 1 or int(pos) > 9:
+            print("Invalid input! Enter 1 to 9.")
+            continue
+
+        pos = int(pos)
+        row = (pos - 1) // 3
+        col = (pos - 1) % 3
+
+        move = (row, col)
+
+        if move in taken:
+            print("Position already taken!")
+            continue
+
+        taken.add(move)
+        moves.append(move)
         board[row][col] = mark
 
         if check_winner(board, mark):
-            display_board(board)
-            print(f"{name} wins this round!")
-
+            show_board(board)
+            print(name, "WINS!")
             scores[name] = scores.get(name, 0) + 1
-            return
+            return scores
 
         turn = 1 - turn
 
-    display_board(board)
-    print("It's a draw!")
+    show_board(board)
+    print("MATCH DRAW!")
+    return scores
 
 
-def load_scoreboard():
-    """Load scores from the text file into a dictionary."""
-    scores = {}
+# Display scoreboard
+def show_scoreboard(scores):
+    print("\n===== SCOREBOARD =====")
 
-    try:
-        with open(SCORE_FILE, "r", encoding="utf-8") as file:
-            for line in file:
-                line = line.strip()
+    ranking = list(scores.items())
+    ranking.sort(key=lambda x: x[1], reverse=True)
 
-                if not line:
-                    continue
+    for name, score in ranking:
+        print(name, ":", score)
 
-                try:
-                    name, score = line.rsplit(",", 1)
-                    scores[name] = int(score)
-                except ValueError:
-                    print(f"Skipping invalid scoreboard line: {line}")
+    return ranking
 
-    except FileNotFoundError:
-        # The file will be created when the scores are saved.
-        pass
+
+# Remove player score
+def remove_player(scores):
+    name = input("Enter player name: ").strip().title()
+
+    if name in scores:
+        scores.pop(name)
+        print("Player removed!")
+    else:
+        print("Player not found!")
 
     return scores
 
 
-def save_scoreboard(scores):
-    """Save the scoreboard dictionary to a text file."""
-    try:
-        with open(SCORE_FILE, "w", encoding="utf-8") as file:
-            for name, score in scores.items():
-                file.write(f"{name},{score}\n")
-
-    except OSError as error:
-        print("Could not save the scoreboard:", error)
-
-
-def show_scoreboard(scores):
-    """Display all player scores."""
-    print("\n--- Scoreboard ---")
-
-    if not scores:
-        print("No scores recorded yet.")
-        return
-
-    for name, score in scores.items():
-        print(f"{name}: {score} win(s)")
-
-
-def get_player_names():
-    """Ask for two player names."""
-    while True:
-        player1 = input("Enter Player 1 name: ").strip()
-        player2 = input("Enter Player 2 name: ").strip()
-
-        if not player1 or not player2:
-            print("Names cannot be empty. Please try again.")
-        elif player1.lower() == player2.lower():
-            print("Please enter two different names.")
-        else:
-            return player1, player2
-
-
-def show_rules():
-    """Display the game rules."""
-    print("\n--- Game Rules ---")
-    print("1. The game is played on a 3x3 board.")
-    print("2. Player 1 uses X and Player 2 uses O.")
-    print("3. Players take turns choosing a row and column.")
-    print("4. The first player to make a line of three wins.")
-    print("5. If the board fills with no winner, the round is a draw.")
-
-
+# Main program
 def main():
-    """Run the main menu."""
-    scores = load_scoreboard()
+    scores = load_scores()
+
+    p1 = input("Enter Player 1 name: ").strip().title()
+    p2 = input("Enter Player 2 name: ").strip().title()
+
+    while not p1 or not p2 or p1 == p2:
+        print("Enter two different names!")
+        p1 = input("Player 1: ").strip().title()
+        p2 = input("Player 2: ").strip().title()
+
+    print("\nWelcome", " vs ".join([p1, p2]))
 
     while True:
-        print("\n===== TIC-TAC-TOE =====")
-        print("1. Start New Game")
-        print("2. View Scoreboard")
-        print("3. View Game Rules")
-        print("4. Reset Scoreboard")
-        print("5. Exit")
+        print("\n===== MAIN MENU =====")
+        print("1. Play Game")
+        print("2. Show Scoreboard")
+        print("3. Remove Player")
+        print("4. Exit")
 
-        choice = input("Enter your choice (1-5): ").strip()
+        choice = input("Enter choice: ").strip().lower()
 
-        if choice == "1":
-            player1, player2 = get_player_names()
+        try:
+            if choice == "1":
+                scores = play_game(p1, p2, scores)
+                save_scores(scores)
 
-            while True:
-                play_round(player1, player2, scores)
-                save_scoreboard(scores)
+            elif choice == "2":
+                show_scoreboard(scores)
 
-                again = input("Play another round? (y/n): ").strip().lower()
-                if again != "y":
-                    break
+            elif choice == "3":
+                scores = remove_player(scores)
+                save_scores(scores)
 
-        elif choice == "2":
-            show_scoreboard(scores)
+            elif choice == "4":
+                save_scores(scores)
+                print("Thanks for playing!")
+                break
 
-        elif choice == "3":
-            show_rules()
+            else:
+                print("Invalid choice!")
 
-        elif choice == "4":
-            confirm = input("Are you sure you want to reset scores? (y/n): ")
-            if confirm.strip().lower() == "y":
-                scores.clear()
-                save_scoreboard(scores)
-                print("Scoreboard has been reset.")
-
-        elif choice == "5":
-            save_scoreboard(scores)
-            print("Thanks for playing!")
-            break
-
-        else:
-            print("Invalid choice. Please enter a number from 1 to 5.")
+        except (ValueError, OSError):
+            print("Something went wrong. Try again!")
 
 
-if __name__ == "__main__":
-    # Run the doctests before starting the game.
-    doctest.testmod()
-    main()
+main()
