@@ -35,7 +35,8 @@ def show_board(board):
     return board
 
 
-# Check winner
+# function for checking winner
+
 def check_winner(board, mark):
     for i in range(3):
         row = True
