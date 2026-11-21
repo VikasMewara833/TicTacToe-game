@@ -69,6 +69,49 @@ def get_move(mark, xState, zState):
             continue
         return value
 
+def is_draw(xState, zState):
+    for i in range(9):
+        if not xState[i] and not zState[i]:
+            return False
+    return True
+        if is_draw(xState, zState):
+            printBoard(xState, zState)
+            print("MATCH DRAW!")
+            break
+
+def play_game(p1, p2, scores):
+    xState = [0] * 9
+    zState = [0] * 9
+    turn = 1  # 1 for X (p1), 0 for O (p2)
+
+    while True:
+        printBoard(xState, zState)
+        if turn == 1:
+            value = get_move("X", xState, zState)
+            xState[value] = 1
+        else:
+            value = get_move("O", xState, zState)
+            zState[value] = 1
+
+        result = checkWin(xState, zState)
+        if result != -1:
+            printBoard(xState, zState)
+            winner = p1 if result == 1 else p2
+            print(winner, "WINS!")
+            scores[winner] = scores.get(winner, 0) + 1
+            return scores
+
+        if is_draw(xState, zState):
+            printBoard(xState, zState)
+            print("MATCH DRAW!")
+            return scores
+
+        turn = 1 - turn
+
+
+if __name__ == "__main__":
+    play_game("Player 1", "Player 2", {})
+
 
 
 
