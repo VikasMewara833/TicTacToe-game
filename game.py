@@ -137,6 +137,40 @@ def show_scoreboard(scores):
     for name, score in ranking:
         print(name, ":", score)
 
+def main():
+    scores = load_scores()
+    p1 = input("Enter Player 1 name (X): ").strip().title()
+    p2 = input("Enter Player 2 name (O): ").strip().title()
+    while not p1 or not p2 or p1 == p2:
+        print("Enter two different names!")
+        p1 = input("Player 1: ").strip().title()
+        p2 = input("Player 2: ").strip().title()
+
+    print("Welcome to Tic Tac Toe:", p1, "vs", p2)
+
+    while True:
+        print("\n===== MAIN MENU =====")
+        print("1. Play Game")
+        print("2. Show Scoreboard")
+        print("3. Exit")
+        choice = input("Enter choice: ").strip()
+
+        if choice == "1":
+            scores = play_game(p1, p2, scores)
+            save_scores(scores)
+        elif choice == "2":
+            show_scoreboard(scores)
+        elif choice == "3":
+            save_scores(scores)
+            print("Thanks for playing!")
+            break
+        else:
+            print("Invalid choice!")
+
+
+if __name__ == "__main__":
+    main()
+
 
 
 
