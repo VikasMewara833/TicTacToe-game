@@ -112,6 +112,31 @@ def play_game(p1, p2, scores):
 if __name__ == "__main__":
     play_game("Player 1", "Player 2", {})
 
+FILE = "scoreboard.txt"
+
+def load_scores():
+    scores = {}
+    try:
+        with open(FILE, "r") as f:
+            for line in f:
+                data = line.strip().split("|")
+                if len(data) == 2 and data[1].isdigit():
+                    scores[data[0]] = int(data[1])
+    except FileNotFoundError:
+        pass
+    return scores
+
+def save_scores(scores):
+    with open(FILE, "w") as f:
+        for name, score in scores.items():
+            f.write(name + "|" + str(score) + "\n")
+
+def show_scoreboard(scores):
+    print("\n===== SCOREBOARD =====")
+    ranking = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    for name, score in ranking:
+        print(name, ":", score)
+
 
 
 
