@@ -1,4 +1,3 @@
-
 # TIC TAC TOE GAME - GROUP 14
 
 FILE = "scoreboard.txt"
