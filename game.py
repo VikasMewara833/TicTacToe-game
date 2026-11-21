@@ -49,4 +49,14 @@ if __name__ == "__main__":
             break
         turn = 1 - turn
 
+def get_move(mark):
+    while True:
+        value = input(f"{mark}, enter a position (0-8): ").strip()
+        if not value.isdigit() or int(value) > 8:
+            print("Invalid input! Enter a number from 0 to 8.")
+            continue
+        return int(value)
+
+
+
 
