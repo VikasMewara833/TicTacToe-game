@@ -57,6 +57,18 @@ def get_move(mark):
             continue
         return int(value)
 
+def get_move(mark, xState, zState):
+    while True:
+        value = input(f"{mark}, enter a position (0-8): ").strip()
+        if not value.isdigit() or int(value) > 8:
+            print("Invalid input! Enter a number from 0 to 8.")
+            continue
+        value = int(value)
+        if xState[value] or zState[value]:
+            print("Position already taken!")
+            continue
+        return value
+
 
 
 
