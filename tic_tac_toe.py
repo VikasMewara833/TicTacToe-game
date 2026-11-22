@@ -35,7 +35,7 @@ def show_board(board):
     return board
 
 
-# function for checking winner
+# Check all rows, columns and diagonals for a winning combination
 
 def check_winner(board, mark):
     for i in range(3):
