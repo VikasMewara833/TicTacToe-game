@@ -4,7 +4,7 @@ FILE = "scoreboard.txt"
 
 
 # Load previous scores
-
+def load_scores():
     scores = {}
     try:
         with open(FILE, "r") as f:
