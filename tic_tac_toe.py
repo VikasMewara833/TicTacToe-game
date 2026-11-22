@@ -1,6 +1,7 @@
 # TIC TAC TOE GAME - GROUP 14
 
 FILE = "scoreboard.txt"
+HISTORY_FILE = "history.txt"
 
 
 # Read previously saved player scores from the file
@@ -25,6 +26,13 @@ def save_scores(scores):
     return True
 
 
+# Save the result of each completed match
+def save_match_history(p1, p2, result):
+    with open(HISTORY_FILE, "a") as f:
+        f.write(p1 + "|" + p2 + "|" + result + "\n")
+    return True
+
+
 # Display the current Tic Tac Toe board
 def show_board(board):
     print("\n-------------")
@@ -36,7 +44,6 @@ def show_board(board):
 
 
 # Check all rows, columns and diagonals for a winning combination
-
 def check_winner(board, mark):
     for i in range(3):
         row = True
@@ -114,13 +121,22 @@ def play_game(p1, p2, scores):
         if check_winner(board, mark):
             show_board(board)
             print(name, "WINS!")
+
             scores[name] = scores.get(name, 0) + 1
+
+            # Save winner in match history
+            save_match_history(p1, p2, name)
+
             return scores
 
         turn = 1 - turn
 
     show_board(board)
     print("MATCH DRAW!")
+
+    # Save draw result in match history
+    save_match_history(p1, p2, "DRAW")
+
     return scores
 
 
@@ -135,6 +151,33 @@ def show_scoreboard(scores):
         print(name, ":", score)
 
     return ranking
+
+
+# Display previous match history
+def show_match_history():
+    print("\n===== MATCH HISTORY =====")
+
+    try:
+        with open(HISTORY_FILE, "r") as f:
+            records = f.readlines()
+
+            if not records:
+                print("No match history available!")
+                return
+
+            for i, line in enumerate(records, start=1):
+                data = line.strip().split("|")
+
+                if len(data) == 3:
+                    p1, p2, result = data
+
+                    if result == "DRAW":
+                        print(i, ".", p1, "vs", p2, "- DRAW")
+                    else:
+                        print(i, ".", p1, "vs", p2, "- Winner:", result)
+
+    except FileNotFoundError:
+        print("No match history available!")
 
 
 # Remove player score
@@ -169,7 +212,8 @@ def main():
         print("1. Play Game")
         print("2. Show Scoreboard")
         print("3. Remove Player")
-        print("4. Exit")
+        print("4. Show Match History")
+        print("5. Exit")
 
         choice = input("Enter choice: ").strip().lower()
 
@@ -186,6 +230,9 @@ def main():
                 save_scores(scores)
 
             elif choice == "4":
+                show_match_history()
+
+            elif choice == "5":
                 save_scores(scores)
                 print("Thanks for playing!")
                 break
