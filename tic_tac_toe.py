@@ -7,7 +7,7 @@ FILE = "scoreboard.txt"
 def load_scores():
     scores = {}
     try:
-        with open(FILE, "r") as f:
+        with open(FILE, "r", encoding="utf-8") as f:
             for line in f:
                 data = line.strip().split("|")
                 if len(data) == 2 and data[1].isdigit():
