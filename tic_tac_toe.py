@@ -1,7 +1,6 @@
 # TIC TAC TOE GAME - GROUP 14
 
 FILE = "scoreboard.txt"
-HISTORY_FILE = "history.txt"
 
 
 # Read previously saved player scores from the file
@@ -23,13 +22,6 @@ def save_scores(scores):
     with open(FILE, "w") as f:
         for name, score in scores.items():
             f.write(name + "|" + str(score) + "\n")
-    return True
-
-
-# Save the result of each completed match
-def save_match_history(p1, p2, result):
-    with open(HISTORY_FILE, "a") as f:
-        f.write(p1 + "|" + p2 + "|" + result + "\n")
     return True
 
 
@@ -58,6 +50,7 @@ def check_winner(board, mark):
         if row or col:
             return True
 
+    # Check both diagonal combinations
     if board[0][0] == mark and board[1][1] == mark and board[2][2] == mark:
         return True
 
@@ -100,6 +93,7 @@ def play_game(p1, p2, scores):
         name, mark = players[turn]
         pos = input(name + " (" + mark + "), enter position: ").strip()
 
+        # Validate the entered position
         if not pos.isdigit() or int(pos) < 1 or int(pos) > 9:
             print("Invalid input! Enter 1 to 9.")
             continue
@@ -110,6 +104,7 @@ def play_game(p1, p2, scores):
 
         move = (row, col)
 
+        # Check whether the position is already occupied
         if move in taken:
             print("Position already taken!")
             continue
@@ -118,25 +113,18 @@ def play_game(p1, p2, scores):
         moves.append(move)
         board[row][col] = mark
 
+        # Check whether the current player has won
         if check_winner(board, mark):
             show_board(board)
             print(name, "WINS!")
-
             scores[name] = scores.get(name, 0) + 1
-
-            # Save winner in match history
-            save_match_history(p1, p2, name)
-
             return scores
 
+        # Switch the turn to the other player
         turn = 1 - turn
 
     show_board(board)
     print("MATCH DRAW!")
-
-    # Save draw result in match history
-    save_match_history(p1, p2, "DRAW")
-
     return scores
 
 
@@ -153,34 +141,7 @@ def show_scoreboard(scores):
     return ranking
 
 
-# Display previous match history
-def show_match_history():
-    print("\n===== MATCH HISTORY =====")
-
-    try:
-        with open(HISTORY_FILE, "r") as f:
-            records = f.readlines()
-
-            if not records:
-                print("No match history available!")
-                return
-
-            for i, line in enumerate(records, start=1):
-                data = line.strip().split("|")
-
-                if len(data) == 3:
-                    p1, p2, result = data
-
-                    if result == "DRAW":
-                        print(i, ".", p1, "vs", p2, "- DRAW")
-                    else:
-                        print(i, ".", p1, "vs", p2, "- Winner:", result)
-
-    except FileNotFoundError:
-        print("No match history available!")
-
-
-# Remove player score
+# Remove a player's score from the scoreboard
 def remove_player(scores):
     name = input("Enter player name: ").strip().title()
 
@@ -197,9 +158,11 @@ def remove_player(scores):
 def main():
     scores = load_scores()
 
+    # Get player names
     p1 = input("Enter Player 1 name: ").strip().title()
     p2 = input("Enter Player 2 name: ").strip().title()
 
+    # Ensure both players have different names
     while not p1 or not p2 or p1 == p2:
         print("Enter two different names!")
         p1 = input("Player 1: ").strip().title()
@@ -207,13 +170,13 @@ def main():
 
     print("\nWelcome", " vs ".join([p1, p2]))
 
+    # Display the main menu
     while True:
         print("\n===== MAIN MENU =====")
         print("1. Play Game")
         print("2. Show Scoreboard")
         print("3. Remove Player")
-        print("4. Show Match History")
-        print("5. Exit")
+        print("4. Exit")
 
         choice = input("Enter choice: ").strip().lower()
 
@@ -230,9 +193,6 @@ def main():
                 save_scores(scores)
 
             elif choice == "4":
-                show_match_history()
-
-            elif choice == "5":
                 save_scores(scores)
                 print("Thanks for playing!")
                 break
@@ -244,4 +204,5 @@ def main():
             print("Something went wrong. Try again!")
 
 
+# Start the game
 main()
