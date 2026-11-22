@@ -74,7 +74,7 @@ def count_empty(board, index=0):
     return count_empty(board, index + 1)
 
 
-# Play one round
+# Handle the complete gameplay for one match
 def play_game(p1, p2, scores):
     board = [
         ["1", "2", "3"],
@@ -124,7 +124,7 @@ def play_game(p1, p2, scores):
     return scores
 
 
-# Display scoreboard
+# Display players in descending order of their scores
 def show_scoreboard(scores):
     print("\n===== SCOREBOARD =====")
 
@@ -150,7 +150,7 @@ def remove_player(scores):
     return scores
 
 
-# Main program
+# Main function to control the game menu and execution
 def main():
     scores = load_scores()
 
