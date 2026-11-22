@@ -133,7 +133,7 @@ def show_scoreboard(scores):
     print("\n===== SCOREBOARD =====")
 
     ranking = list(scores.items())
-    ranking.sort(key=lambda x: x[1], reverse=True)
+    ranking.sort(key=lambda x: (-x[1], x[0]))
 
     for name, score in ranking:
         print(name, ":", score)
