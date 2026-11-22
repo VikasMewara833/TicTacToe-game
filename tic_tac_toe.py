@@ -3,7 +3,7 @@
 FILE = "scoreboard.txt"
 
 
-# Load previous scores
+# Read previously saved player scores from the file
 def load_scores():
     scores = {}
     try:
@@ -17,7 +17,7 @@ def load_scores():
     return scores
 
 
-# Save scores
+# Save updated player scores permanently in the file
 def save_scores(scores):
     with open(FILE, "w") as f:
         for name, score in scores.items():
@@ -25,7 +25,7 @@ def save_scores(scores):
     return True
 
 
-# Display board
+# Display the current Tic Tac Toe board
 def show_board(board):
     print("\n-------------")
     for row in board:
